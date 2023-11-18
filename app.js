@@ -11,7 +11,14 @@ const NotFound = require('./errors/notfound');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
-const allowedCors = ['http://localhost:3000', 'http://localhost:3005'];
+const allowedCors = [
+  'http://localhost:3000',
+  'http://localhost:3005',
+  'http://drmackey.nomoredomainsmonster.ru',
+  'http://api.drmackey.nomoredomainsmonster.ru',
+  'https://drmackey.nomoredomainsmonster.ru',
+  'https://api.drmackey.nomoredomainsmonster.ru',
+];
 
 const app = express();
 
