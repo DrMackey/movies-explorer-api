@@ -63,7 +63,7 @@ module.exports.deleteMovie = (req, res, next) => {
         next(new NotFound('Фильм не найден!'));
         return;
       }
-      if (owner == movie.owner) {
+      if (`"${owner}"` === JSON.stringify(movie.owner)) {
         movie
           .deleteOne()
           .then(() => {

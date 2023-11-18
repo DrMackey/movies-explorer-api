@@ -4,13 +4,13 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const auth = require('./middlewares/auth');
-const { validateCreateUser, validateLogin } = require('./middlewares/validate');
-const { createUser, login } = require('./controllers/users');
+
 const NotFound = require('./errors/notfound');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, dataMovies = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
 const allowedCors = [
   'http://localhost:3000',
   'http://localhost:3005',
@@ -19,16 +19,23 @@ const allowedCors = [
   'https://drmackey.nomoredomainsmonster.ru',
   'https://api.drmackey.nomoredomainsmonster.ru',
 ];
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
 
 const app = express();
 
+app.use(limiter);
 app.use(cors({ credentials: true, origin: allowedCors, maxAge: 30 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(requestLogger);
 
-mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb');
+mongoose.connect(dataMovies);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -36,19 +43,18 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signin', validateLogin, login);
-app.post('/signup', validateCreateUser, createUser);
+app.use(require('./routes/auth'));
 
 app.use(auth);
 
-app.use('/users', require('./routes/users'));
-app.use('/movies', require('./routes/movies'));
+app.use(require('./routes/users'));
+app.use(require('./routes/movies'));
 
-app.use(errorLogger);
-app.use(errors());
 app.use((req, res, next) => {
   next(new NotFound('Страница не найдена'));
 });
+app.use(errorLogger);
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
@@ -56,6 +62,8 @@ app.use((err, req, res, next) => {
   res
     .status(statusCode)
     .send({ message: statusCode === 500 ? message : message });
+
+  next();
 });
 
-app.listen(PORT, console.log('Port:', PORT));
+app.listen(PORT);

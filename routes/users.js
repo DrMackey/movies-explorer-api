@@ -3,8 +3,8 @@ const router = require('express').Router();
 const { getUser, patchMe, deleteCookie } = require('../controllers/users');
 const { validateUserUpdate } = require('../middlewares/validate');
 
-router.get('/me', getUser);
-router.patch('/me', validateUserUpdate, patchMe);
-router.get('/me/exit', deleteCookie);
+router.get('/users/me', getUser);
+router.patch('/users/me', validateUserUpdate, patchMe);
+router.get('/users/signout', deleteCookie);
 
 module.exports = router;
