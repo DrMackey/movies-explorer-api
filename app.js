@@ -10,7 +10,8 @@ const auth = require('./middlewares/auth');
 const NotFound = require('./errors/notfound');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000, dataMovies = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
+const { PORT = 3005, dataMovies = 'mongodb://127.0.0.1:27017/bitfilmsdb' } =
+  process.env;
 const allowedCors = [
   'http://localhost:3000',
   'http://localhost:3005',
