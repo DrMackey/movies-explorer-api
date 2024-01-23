@@ -16,7 +16,7 @@ function getJwtToken(id) {
   token = jwt.sign(
     { payload: id },
     NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-    { expiresIn: '7d' },
+    { expiresIn: '7d' }
   );
   return token;
 }
@@ -42,10 +42,12 @@ module.exports.createUser = (req, res, next) => {
         email,
         password: hash,
       })
-        .then((user) => res.status(CREATED).send({
-          name: user.name,
-          email: user.email,
-        }))
+        .then((user) =>
+          res.status(CREATED).send({
+            name: user.name,
+            email: user.email,
+          })
+        )
         .catch((err) => {
           if (err.name === 'ValidationError') {
             next(new BadRequest('Неверно заполнены поля'));
@@ -65,7 +67,7 @@ module.exports.patchMe = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user.payload,
     { name, email },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((user) => {
       res.send({ data: user });
@@ -103,7 +105,7 @@ module.exports.login = (req, res, next) => {
           .cookie('jwt', token, {
             maxage: 3600000 * 24 * 7,
             httpOnly: true,
-            sameSite: true,
+            // sameSite: true,
           })
           .send({ message: 'Успешная авторизация.' });
       });
